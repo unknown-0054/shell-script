@@ -4,7 +4,7 @@
 apt install -y sudo vim curl wget bash-completion net-tools vnstat fail2ban zram-tools apparmor dnsutils
 
 # 安装docker 
-sh <(curl -k 'https://get.docker.com') >/dev/null 2>&1
+sh <(curl -k 'https://get.docker.com')
 
 #开启 zram
 echo -e "ALGO=zstd\nPERCENT=100" > /etc/default/zramswap
