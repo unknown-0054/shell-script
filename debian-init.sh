@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # 安装软件包
 apt install -y sudo vim curl wget bash-completion net-tools vnstat fail2ban zram-tools apparmor dnsutils
