@@ -9,6 +9,7 @@ sh <(curl -k 'https://get.docker.com') >/dev/null 2>&1
 #开启 zram
 echo -e "ALGO=zstd\nPERCENT=100" > /etc/default/zramswap
 service zramswap reload
+
 # 去除布告栏信息
 echo '' >/etc/motd
 echo '' >/etc/issue
