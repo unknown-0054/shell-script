@@ -169,7 +169,7 @@ if [[ -z $value_a || -z $value_g || -z $value_p || -z $value_t || -z $value_u ||
 fi
 
 
-params=" -a $value_a -g $value_g -p $value_p -t $value_t --user $value_t --location $value_t"
+params=" -a $value_a -g $value_g -p $value_p -t $value_t --user $value_u --location $value_l"
 
 if [[ $add_n -eq 1 ]]; then
   params+=" -n --vnstat-mr ${value_n}"
