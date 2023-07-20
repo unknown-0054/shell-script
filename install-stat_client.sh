@@ -87,7 +87,7 @@ WantedBy=multi-user.target
 EOF
 systemctl daemon-reload
 systemctl enable ${service_name}
-systemctl start ${service_name}
+systemctl restart ${service_name}
 }
 
 
