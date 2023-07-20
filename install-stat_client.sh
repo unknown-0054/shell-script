@@ -88,7 +88,6 @@ EOF
 systemctl daemon-reload
 systemctl enable ${service_name}
 systemctl start ${service_name}
-systemctl status ${service_name}
 }
 
 
