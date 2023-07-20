@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 安装软件包
-apt install -y sudo vim curl wget bash-completion net-tools vnstat fail2ban zram-tools apparmor dnsutils
+apt install -y sudo bash-completion vim curl wget ntp net-tools zram-tools dnsutils vnstat fail2ban
 
 #开启 zram
 echo -e "ALGO=zstd\nPERCENT=100" > /etc/default/zramswap
