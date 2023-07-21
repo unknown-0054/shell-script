@@ -32,7 +32,7 @@ echo "set mouse-=a" >~/.vimrc
 
 # 添加别名
 if ! grep -q "alias dc" ~/.bashrc; then
-    echo "alias dc='docker-compose'" >> ~/.bashrc
+    echo "alias dc='docker compose'" >> ~/.bashrc
 fi
 source ~/.bashrc
 
