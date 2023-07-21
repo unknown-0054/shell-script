@@ -36,6 +36,12 @@ if ! grep -q "alias dc" ~/.bashrc; then
 fi
 source ~/.bashrc
 
+#
+sed -i '/^#*DefaultLimitCORE=/s/^#*//; s/DefaultLimitCORE=.*/DefaultLimitCORE=0/'  /etc/systemd/system.conf
+sed -i '/^#*DefaultLimitNOFILE=/s/^#*//; s/DefaultLimitNOFILE=.*/DefaultLimitNOFILE=65535/'  /etc/systemd/system.conf
+sed -i '/^#*DefaultLimitNPROC=/s/^#*//; s/DefaultLimitNPROC=.*/DefaultLimitNPROC=65535/'  /etc/systemd/system.conf
+systemctl daemon-reload
+
 # 内核参数调整
 cat >'/etc/sysctl.d/99-sysctl.conf' <<EOF
 net.ipv4.ip_local_port_range = 10000 65535
