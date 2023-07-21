@@ -36,50 +36,6 @@ if ! grep -q "alias dc" ~/.bashrc; then
 fi
 source ~/.bashrc
 
-# 解除系统限制
-ulimit -SHn 1000000 && ulimit -c unlimited
-echo "* soft nofile 1048576
-* hard nofile 1048576
-* soft nproc 1048576
-* hard nproc 1048576
-* soft core 1048576
-* hard core 1048576
-* hard memlock unlimited
-* soft memlock unlimited" >/etc/security/limits.conf
-
-if grep -q "ulimit" /etc/profile; then
-  :
-else
-  sed -i '/ulimit -SHn/d' /etc/profile
-  echo "ulimit -SHn 1000000" >>/etc/profile
-fi
-
-if grep -q "pam_limits.so" /etc/pam.d/common-session; then
-  :
-else
-  sed -i '/required pam_limits.so/d' /etc/pam.d/common-session
-  echo "session required pam_limits.so" >>/etc/pam.d/common-session
-fi
-
-sed -i '/DefaultTimeoutStartSec/d' /etc/systemd/system.conf
-sed -i '/DefaultTimeoutStopSec/d' /etc/systemd/system.conf
-sed -i '/DefaultRestartSec/d' /etc/systemd/system.conf
-sed -i '/DefaultLimitCORE/d' /etc/systemd/system.conf
-sed -i '/DefaultLimitNOFILE/d' /etc/systemd/system.conf
-sed -i '/DefaultLimitNPROC/d' /etc/systemd/system.conf
-
-cat >>'/etc/systemd/system.conf' <<EOF
-[Manager]
-DefaultTimeoutStartSec=90s
-DefaultTimeoutStopSec=30s
-DefaultRestartSec=100ms
-DefaultLimitCORE=infinity
-DefaultLimitNOFILE=65535
-DefaultLimitNPROC=65535
-EOF
-
-systemctl daemon-reload
-
 # 内核参数调整
 cat >'/etc/sysctl.d/99-sysctl.conf' <<EOF
 net.ipv4.ip_local_port_range = 10000 65535
