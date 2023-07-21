@@ -30,6 +30,12 @@ chmod +x /etc/dhcp/dhclient-enter-hooks.d/nodnsupdate
 # vim 禁用鼠标
 echo "set mouse-=a" >~/.vimrc
 
+# 添加别名
+if ! grep -q "alias dc" ~/.bashrc; then
+    echo "alias dc='docker-compose'" >> ~/.bashrc
+fi
+source ~/.bashrc
+
 # 解除系统限制
 ulimit -SHn 1000000 && ulimit -c unlimited
 echo "* soft nofile 1048576
