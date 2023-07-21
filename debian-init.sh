@@ -44,7 +44,29 @@ systemctl daemon-reload
 
 # 内核参数调整
 cat >'/etc/sysctl.d/99-sysctl.conf' <<EOF
-net.ipv4.ip_local_port_range = 10000 65535
+# 开启 bbr，内核版本 >= 4.9
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+
+# 增大可用的客户端端口范围
+net.ipv4.ip_local_port_range = 1024 65535
+
+# 尽量多复用连接
+net.ipv4.tcp_timestamps = 1
+net.ipv4.tcp_tw_reuse = 1
+
+# 增大 tcp 缓冲队列，若仍然不够可适当再增加前两项
+net.ipv4.tcp_max_syn_backlog = 4096
+net.core.somaxconn = 4096
+net.ipv4.tcp_abort_on_overflow = 1
+
+# 服务器网络非常稳定设置 0，提升吞吐量，服务器网络不够稳定则设置 1
+net.ipv4.tcp_slow_start_after_idle = 1
+
+# 尽量少用 swap，多用物理内存；设置 0 表示不使用 swap，设置 100 表示优先使用 swap
+vm.swappiness = 10
+
+fs.file-max = 6553560
 EOF
 sysctl -p >/dev/null 2>&1
 sysctl --system >/dev/null 2>&1
