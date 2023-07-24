@@ -64,7 +64,7 @@ net.ipv4.tcp_abort_on_overflow = 1
 net.ipv4.tcp_slow_start_after_idle = 1
 
 # 尽量少用 swap，多用物理内存；设置 0 表示不使用 swap，设置 100 表示优先使用 swap
-vm.swappiness = 10
+vm.swappiness = 100
 
 fs.file-max = 6553560
 EOF
