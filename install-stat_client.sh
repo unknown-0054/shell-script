@@ -97,7 +97,7 @@ function get_client() {
     rm -f ServerStatus-${arch}-unknown-linux-musl.zip stat_*
     cd /tmp || exit
 
-    wget --no-check-certificate -q "${MIRROR}https://github.com/zdz/Serverstatus-Rust/releases/latest/download/client-${arch}-unknown-linux-musl.zip"
+    wget --no-check-certificate -q "${MIRROR}/https://github.com/zdz/Serverstatus-Rust/releases/latest/download/client-${arch}-unknown-linux-musl.zip"
     unzip -o client-${arch}-unknown-linux-musl.zip
 
     # 验证文件是否成功解压
