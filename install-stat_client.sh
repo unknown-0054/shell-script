@@ -1,5 +1,5 @@
 #!/bin/sh
-
+MIRROR=https://ghproxy.com
 working_dir=/opt/serverstatus
 client_dir="$working_dir/client"
 tmp_client_file=/tmp/stat_client
