@@ -56,7 +56,7 @@ net.ipv4.udp_rmem_min=8192
 net.ipv4.udp_wmem_min=8192
 EOF
 sysctl -p && sysctl --system
-}
+
 
 #
 sed -i '/^#*DefaultLimitCORE=/s/^#*//; s/DefaultLimitCORE=.*/DefaultLimitCORE=0/'  /etc/systemd/system.conf
