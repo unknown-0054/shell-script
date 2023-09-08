@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 安装软件包
-apt install -y sudo bash-completion vim curl wget ntp net-tools zram-tools dnsutils vnstat fail2ban iperf3 qemu-guest-agent
+apt install -y sudo bash-completion vim curl wget ntp net-tools zram-tools dnsutils vnstat iperf3 qemu-guest-agent
 
 #开启 zram
 echo -e "ALGO=zstd\nPERCENT=100" > /etc/default/zramswap
