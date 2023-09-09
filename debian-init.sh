@@ -37,6 +37,7 @@ fi
 source ~/.bashrc
 
 ## tcp优化
+rm /etc/sysctl.d/*
 cat > /etc/sysctl.conf << EOF
 fs.file-max = 6553560
 net.core.default_qdisc = fq_pie
