@@ -36,6 +36,25 @@ if ! grep -q "alias dc" ~/.bashrc; then
 fi
 source ~/.bashrc
 
+## tcp优化
+cat > /etc/sysctl.conf << EOF
+fs.file-max = 6553560
+net.core.default_qdisc = fq_pie
+net.ipv4.tcp_congestion_control = bbr
+net.ipv4.ip_local_port_range = 1024 65535
+net.ipv4.tcp_timestamps = 1
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_max_syn_backlog = 4096
+net.core.somaxconn = 4096
+net.ipv4.tcp_abort_on_overflow = 1
+net.ipv4.tcp_slow_start_after_idle = 0
+net.ipv4.tcp_mem = 164205  218941  328410
+net.ipv4.tcp_rmem = 4096 87380 33554432
+net.ipv4.tcp_wmem = 4096 16384 33554432
+vm.swappiness = 10
+EOF
+sysctl -p && sysctl --system
+
 #
 sed -i '/^#*DefaultLimitCORE=/s/^#*//; s/DefaultLimitCORE=.*/DefaultLimitCORE=0/'  /etc/systemd/system.conf
 sed -i '/^#*DefaultLimitNOFILE=/s/^#*//; s/DefaultLimitNOFILE=.*/DefaultLimitNOFILE=65535/'  /etc/systemd/system.conf
