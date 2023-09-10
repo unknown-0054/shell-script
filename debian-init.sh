@@ -44,6 +44,9 @@ if ! grep -q "alias dc" ~/.bashrc; then
 fi
 source ~/.bashrc
 
+# docker 
+sh <(curl -k 'https://get.docker.com') && source  ~/.bashrc
+
 # tcp
 Mem=`grep MemTotal /proc/meminfo | awk -F ':' '{print $2}' | awk '{print $1}'`
 totalMem=`echo "scale=2; $Mem/1024/1024" | bc`
