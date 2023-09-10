@@ -46,6 +46,7 @@ source ~/.bashrc
 
 # docker 
 sh <(curl -k 'https://get.docker.com') && source  ~/.bashrc
+rm -rf /opt/*
 
 # tcp
 Mem=`grep MemTotal /proc/meminfo | awk -F ':' '{print $2}' | awk '{print $1}'`
