@@ -11,6 +11,13 @@ service zramswap reload
 echo '' >/etc/motd
 echo '' >/etc/issue
 
+# Fail2ban
+cat <<EOF > /etc/fail2ban/jail.d/defaults-debian.conf
+[sshd]
+enabled = true
+backend=systemd
+EOF
+
 # 屏蔽 docker.io
 cat <<EOF > /etc/apt/preferences.d/docker
 Package: docker docker.io docker-compose 
