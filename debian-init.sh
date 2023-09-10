@@ -121,7 +121,6 @@ net.ipv4.ip_local_port_range = 50000 65535
 net.core.default_qdisc=fq
 net.ipv4.tcp_congestion_control=bbr
 EOF
-sysctl -p && sysctl --system
 
 if [[ ${totalMem//.*/} -lt 4 ]]; then #<4GB 1G_3G_8G
   sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=262144 786432 2097152#g" /etc/sysctl.conf
@@ -134,6 +133,8 @@ elif [[ ${totalMem//.*/} -ge 11 && ${totalMem//.*/} -lt 15 ]]; then #12GB 4G_6G_
 elif [[ ${totalMem//.*/} -ge 15 ]]; then #>16GB 4G_8G_12G
   sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 2097152 3145728#g" /etc/sysctl.conf
 fi
+
+sysctl -p && sysctl --system
 
 #
 sed -i '/^#*DefaultLimitCORE=/s/^#*//; s/DefaultLimitCORE=.*/DefaultLimitCORE=0/' /etc/systemd/system.conf
