@@ -38,12 +38,6 @@ chmod +x /etc/dhcp/dhclient-enter-hooks.d/nodnsupdate
 # vim 禁用鼠标
 echo "set mouse-=a" >~/.vimrc
 
-# 添加别名
-if ! grep -q "alias dc" ~/.bashrc; then
-  echo "alias dc='docker compose'" >>~/.bashrc
-fi
-source ~/.bashrc
-
 # docker 
 rm -rf /opt/containerd
 if command -v docker &> /dev/null; then
@@ -54,6 +48,12 @@ else
     echo "Docker开始安装"
     sh <(curl -k 'https://get.docker.com') && source  ~/.bashrc
 fi
+
+# 添加别名
+if ! grep -q "alias dc" ~/.bashrc; then
+  echo "alias dc='docker compose'" >>~/.bashrc
+fi
+source ~/.bashrc
 
 # tcp
 Mem=`grep MemTotal /proc/meminfo | awk -F ':' '{print $2}' | awk '{print $1}'`
