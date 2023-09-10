@@ -45,8 +45,15 @@ fi
 source ~/.bashrc
 
 # docker 
-sh <(curl -k 'https://get.docker.com') && source  ~/.bashrc
-rm -rf /opt/*
+rm -rf /opt/containerd
+if command -v docker &> /dev/null; then
+    echo "Docker已安装"
+    docker_version=$(docker --version | awk '{print $3}')
+    echo "Docker版本号：$docker_version"
+else
+    echo "Docker开始安装"
+    sh <(curl -k 'https://get.docker.com') && source  ~/.bashrc
+fi
 
 # tcp
 Mem=`grep MemTotal /proc/meminfo | awk -F ':' '{print $2}' | awk '{print $1}'`
