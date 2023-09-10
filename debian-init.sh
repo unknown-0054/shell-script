@@ -115,4 +115,5 @@ cat <<EOF >/tmp/crontab
 0 6 * * * /sbin/reboot
 EOF
 crontab /tmp/crontab
+crontab -l
 systemctl restart cron
