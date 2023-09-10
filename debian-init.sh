@@ -36,7 +36,7 @@ if ! grep -q "alias dc" ~/.bashrc; then
 fi
 source ~/.bashrc
 
-rm /etc/sysctl.d/*
+rm -rf /etc/sysctl.d/*
 cat > /etc/sysctl.conf << EOF
 fs.file-max = 6553560
 net.core.default_qdisc = fq
