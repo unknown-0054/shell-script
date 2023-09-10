@@ -17,6 +17,7 @@ cat <<EOF > /etc/fail2ban/jail.d/defaults-debian.conf
 enabled = true
 backend=systemd
 EOF
+systemctl restart fail2ban
 
 # 屏蔽 docker.io
 cat <<EOF > /etc/apt/preferences.d/docker
