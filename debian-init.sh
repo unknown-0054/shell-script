@@ -91,6 +91,9 @@ if ! grep -q "alias dc" ~/.bashrc; then
 fi
 source ~/.bashrc
 
+# tcp
+Mem=`grep MemTotal /proc/meminfo | awk -F ':' '{print $2}' | awk '{print $1}'`
+totalMem=`echo "scale=2; $Mem/1024/1024" | bc`
 rm -rf /etc/sysctl.d/*
 cat >/etc/sysctl.conf <<EOF
 fs.file-max=1000000
