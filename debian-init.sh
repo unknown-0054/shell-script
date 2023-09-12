@@ -12,7 +12,7 @@ echo '' >/etc/motd
 echo '' >/etc/issue
 
 # Fail2ban
-sed -i "s#.*allowipv6 =.*#allowipv6 = auto#g" /etc/fail2ban/fail2ban.con
+sed -i "s#.*allowipv6 =.*#allowipv6 = auto#g" /etc/fail2ban/fail2ban.conf
 cat <<EOF >/etc/fail2ban/jail.d/defaults-debian.conf
 [sshd]
 enabled = true
