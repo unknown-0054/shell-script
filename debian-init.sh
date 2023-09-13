@@ -42,11 +42,3 @@ if ! grep -q "alias dc" ~/.bashrc; then
   echo "alias dc='docker compose'" >>~/.bashrc
 fi
 source ~/.bashrc
-
-# cron
-cat <<EOF >/tmp/crontab
-0 6 * * * /sbin/reboot
-EOF
-crontab /tmp/crontab
-crontab -l
-systemctl restart cron
