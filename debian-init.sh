@@ -1,24 +1,11 @@
 #!/bin/bash
 
 # 安装软件包
-apt install -y sudo bash-completion vim curl wget ntp net-tools zram-tools python3-systemd fail2ban dnsutils vnstat iperf3 qemu-guest-agent
-
-#开启 zram
-echo -e "ALGO=zstd\nPERCENT=100" >/etc/default/zramswap
-service zramswap reload
+apt install -y sudo bash-completion vim curl wget ntp net-tools zram-tools fail2ban dnsutils vnstat iperf3 qemu-guest-agent
 
 # 去除布告栏信息
 echo '' >/etc/motd
 echo '' >/etc/issue
-
-# Fail2ban
-sed -i "s#.*allowipv6 =.*#allowipv6 = auto#g" /etc/fail2ban/fail2ban.conf
-cat <<EOF >/etc/fail2ban/jail.d/defaults-debian.conf
-[sshd]
-enabled = true
-backend=systemd
-EOF
-systemctl restart fail2ban
 
 # 屏蔽 docker.io
 cat <<EOF >/etc/apt/preferences.d/docker
@@ -40,7 +27,6 @@ chmod +x /etc/dhcp/dhclient-enter-hooks.d/nodnsupdate
 echo "set mouse-=a" >~/.vimrc
 
 # docker 
-rm -rf /opt/containerd
 if command -v docker &> /dev/null; then
     echo "Docker已安装"
     docker_version=$(docker --version | awk '{print $3}')
@@ -48,6 +34,7 @@ if command -v docker &> /dev/null; then
 else
     echo "Docker开始安装"
     sh <(curl -k 'https://get.docker.com') && source  ~/.bashrc
+    rm -rf /opt/containerd
 fi
 
 # 添加别名
