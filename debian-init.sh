@@ -81,6 +81,8 @@ EOF
       sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 2097152 3145728#g" /etc/sysctl.conf
       tcpmeminfo="应用16GB内存TCP方案"
    fi
+
+    sysctl -p
    
    echo "1000000" > /proc/sys/fs/file-max
    sed -i '/required pam_limits.so/d' /etc/pam.d/common-session
