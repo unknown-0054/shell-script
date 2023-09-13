@@ -64,8 +64,6 @@ net.ipv4.tcp_mem=786432 1048576 3145728
 net.ipv4.tcp_wmem=4096 131072 16777216
 net.ipv4.tcp_rmem=4096 131072 16777216
 net.ipv4.ip_local_port_range = 50000 65535
-net.core.default_qdisc=fq
-net.ipv4.tcp_congestion_control=bbr
 EOF
    if [[ ${totalMem//.*/} -lt 4 ]]; then    #<4GB 1G_3G_8G
       sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=262144 786432 2097152#g" /etc/sysctl.conf
