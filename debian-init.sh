@@ -36,6 +36,18 @@ else
     rm -rf /opt/containerd
 fi
 
+if command -v docker-compose &> /dev/null; then
+    if ! grep -q "alias dc" ~/.bashrc; then
+      echo "alias dc='docker-compose'" >>~/.bashrc
+    fi
+    
+else
+    if ! grep -q "alias dc" ~/.bashrc; then
+      echo "alias dc='docker compose'" >>~/.bashrc
+    fi
+fi
+source ~/.bashrc
+
 # tcp
 cat <<EOF >/etc/sysctl.d/99-sysctl.conf
 fs.file-max=1000000
@@ -112,9 +124,3 @@ DefaultLimitNOFILE=20480000
 DefaultLimitNPROC=20480000">>/etc/systemd/system.conf
    systemctl daemon-reload
    systemctl daemon-reexec
-
-# 添加别名
-if ! grep -q "alias dc" ~/.bashrc; then
-  echo "alias dc='docker compose'" >>~/.bashrc
-fi
-source ~/.bashrc
