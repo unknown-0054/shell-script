@@ -36,6 +36,7 @@ else
     rm -rf /opt/containerd
 fi
 
+sed -i '/alias dc/d' ~/.bashrc
 if command -v docker-compose &> /dev/null; then
     if ! grep -q "alias dc" ~/.bashrc; then
       echo "alias dc='docker-compose'" >>~/.bashrc
