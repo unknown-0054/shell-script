@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 安装软件包
-apt install -y sudo bash-completion vim curl wget ntp net-tools zram-tools fail2ban dnsutils vnstat iperf3 qemu-guest-agent
+apt install -y sudo bash-completion vim curl wget ntp net-tools zram-tools fail2ban dnsutils vnstat iperf3 qemu-guest-agent &> /dev/null
 
 # 去除布告栏信息
 echo '' >/etc/motd
@@ -32,7 +32,7 @@ if command -v docker &> /dev/null; then
     echo "Docker版本号：$docker_version"
 else
     echo "Docker开始安装"
-    sh <(curl -k 'https://get.docker.com')
+    sh <(curl -k 'https://get.docker.com') &> /dev/null
     rm -rf /opt/containerd
 fi
 
@@ -97,7 +97,7 @@ elif [[ ${totalMem//.*/} -ge 11 && ${totalMem//.*/} -lt 15 ]]; then
 elif [[ ${totalMem//.*/} -ge 15 ]]; then
     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 2097152 3145728#g" /etc/sysctl.conf
 fi
-sysctl -p
+sysctl -p &> /dev/null
    
 echo "1000000" > /proc/sys/fs/file-max
 sed -i '/ulimit -SHn/d' /etc/profile
