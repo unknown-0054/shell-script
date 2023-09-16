@@ -78,6 +78,9 @@ net.ipv4.tcp_rmem=4096 131072 16777216
 net.ipv4.ip_local_port_range = 50000 65535
 EOF
 
+Mem=`grep MemTotal /proc/meminfo | awk -F ':' '{print $2}' | awk '{print $1}'`
+totalMem=`echo "scale=2; $Mem/1024/1024" | bc`
+
 #<4GB 1G_3G_8G
 if [[ ${totalMem//.*/} -lt 4 ]]; then    
     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=262144 786432 2097152#g" /etc/sysctl.conf
@@ -96,30 +99,28 @@ elif [[ ${totalMem//.*/} -ge 15 ]]; then
 fi
 sysctl -p
    
-   echo "1000000" > /proc/sys/fs/file-max
-   sed -i '/ulimit -SHn/d' /etc/profile
-   echo "ulimit -SHn 1000000" >>/etc/profile
-   ulimit -SHn 1000000 && ulimit -c unlimited
-   echo "*     soft   nofile    1048576
+echo "1000000" > /proc/sys/fs/file-max
+sed -i '/ulimit -SHn/d' /etc/profile
+echo "ulimit -SHn 1000000" >>/etc/profile
+ulimit -SHn 1000000 && ulimit -c unlimited
+
+cat <<EOF >/etc/security/limits.conf
+*     soft   nofile    1048576
 *     hard   nofile    1048576
 *     soft   nproc     1048576
 *     hard   nproc     1048576
 *     soft   core      1048576
 *     hard   core      1048576
 *     hard   memlock   unlimited
-*     soft   memlock   unlimited">/etc/security/limits.conf
+*     soft   memlock   unlimited
+EOF
 
-   sed -i '/DefaultTimeoutStartSec/d' /etc/systemd/system.conf
-   sed -i '/DefaultTimeoutStopSec/d' /etc/systemd/system.conf
-   sed -i '/DefaultRestartSec/d' /etc/systemd/system.conf
-   sed -i '/DefaultLimitCORE/d' /etc/systemd/system.conf
-   sed -i '/DefaultLimitNOFILE/d' /etc/systemd/system.conf
-   sed -i '/DefaultLimitNPROC/d' /etc/systemd/system.conf
-   echo "#DefaultTimeoutStartSec=90s
+cat <<EOF >/etc/systemd/system.conf
+[Manager]
 DefaultTimeoutStopSec=30s
-#DefaultRestartSec=100ms
 DefaultLimitCORE=infinity
 DefaultLimitNOFILE=20480000
-DefaultLimitNPROC=20480000">>/etc/systemd/system.conf
-   systemctl daemon-reload
-   systemctl daemon-reexec
+DefaultLimitNPROC=20480000
+EOF
+systemctl daemon-reload
+systemctl daemon-reexec
