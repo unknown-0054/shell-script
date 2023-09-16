@@ -7,13 +7,6 @@ apt install -y sudo bash-completion vim curl wget ntp net-tools zram-tools fail2
 echo '' >/etc/motd
 echo '' >/etc/issue
 
-# 屏蔽 docker.io
-cat <<EOF >/etc/apt/preferences.d/docker
-Package: docker docker.io docker-compose 
-Pin: release *
-Pin-Priority: -1
-EOF
-
 # hook make_resolv_conf 函数(避免dhclient对/etc/resolv.conf的修改)
 cat <<EOF >/etc/dhcp/dhclient-enter-hooks.d/nodnsupdate
 #!/bin/sh
@@ -27,6 +20,12 @@ chmod +x /etc/dhcp/dhclient-enter-hooks.d/nodnsupdate
 echo "set mouse-=a" >~/.vimrc
 
 # docker 
+cat <<EOF >/etc/apt/preferences.d/docker
+Package: docker docker.io docker-compose 
+Pin: release *
+Pin-Priority: -1
+EOF
+
 if command -v docker &> /dev/null; then
     echo "Docker已安装"
     docker_version=$(docker --version | awk '{print $3}')
