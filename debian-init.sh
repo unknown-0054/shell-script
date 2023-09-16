@@ -32,7 +32,7 @@ if command -v docker &> /dev/null; then
     echo "Docker版本号：$docker_version"
 else
     echo "Docker开始安装"
-    sh <(curl -k 'https://get.docker.com') && source  ~/.bashrc
+    sh <(curl -k 'https://get.docker.com')
     rm -rf /opt/containerd
 fi
 
@@ -77,28 +77,26 @@ net.ipv4.tcp_wmem=4096 131072 16777216
 net.ipv4.tcp_rmem=4096 131072 16777216
 net.ipv4.ip_local_port_range = 50000 65535
 EOF
-   if [[ ${totalMem//.*/} -lt 4 ]]; then    #<4GB 1G_3G_8G
-      sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=262144 786432 2097152#g" /etc/sysctl.conf
-      tcpmeminfo="应用4GB内存TCP方案"
-   elif [[ ${totalMem//.*/} -ge 4 && ${totalMem//.*/} -lt 7 ]]; then    #6GB 2G_4G_8G
-      sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=524288 1048576 2097152#g" /etc/sysctl.conf
-      tcpmeminfo="应用6GB内存TCP方案"
-   elif [[ ${totalMem//.*/} -ge 7 && ${totalMem//.*/} -lt 11 ]]; then    #8GB 3G_4G_12G
-      sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=786432 1048576 3145728#g" /etc/sysctl.conf
-      tcpmeminfo="应用8GB内存TCP方案"
-   elif [[ ${totalMem//.*/} -ge 11 && ${totalMem//.*/} -lt 15 ]]; then    #12GB 4G_6G_12G
-      sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 1572864 3145728#g" /etc/sysctl.conf
-      tcpmeminfo="应用12GB内存TCP方案"
-   elif [[ ${totalMem//.*/} -ge 15 ]]; then     #>16GB 4G_8G_12G
-      sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 2097152 3145728#g" /etc/sysctl.conf
-      tcpmeminfo="应用16GB内存TCP方案"
-   fi
 
-    sysctl -p
+#<4GB 1G_3G_8G
+if [[ ${totalMem//.*/} -lt 4 ]]; then    
+    sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=262144 786432 2097152#g" /etc/sysctl.conf
+#6GB 2G_4G_8G
+elif [[ ${totalMem//.*/} -ge 4 && ${totalMem//.*/} -lt 7 ]]; then
+    sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=524288 1048576 2097152#g" /etc/sysctl.conf
+#8GB 3G_4G_12G
+elif [[ ${totalMem//.*/} -ge 7 && ${totalMem//.*/} -lt 11 ]]; then    
+    sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=786432 1048576 3145728#g" /etc/sysctl.conf
+#12GB 4G_6G_12G
+elif [[ ${totalMem//.*/} -ge 11 && ${totalMem//.*/} -lt 15 ]]; then    
+    sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 1572864 3145728#g" /etc/sysctl.conf
+#>16GB 4G_8G_12G
+elif [[ ${totalMem//.*/} -ge 15 ]]; then
+    sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 2097152 3145728#g" /etc/sysctl.conf
+fi
+sysctl -p
    
    echo "1000000" > /proc/sys/fs/file-max
-   sed -i '/required pam_limits.so/d' /etc/pam.d/common-session
-   echo "session required pam_limits.so" >>/etc/pam.d/common-session
    sed -i '/ulimit -SHn/d' /etc/profile
    echo "ulimit -SHn 1000000" >>/etc/profile
    ulimit -SHn 1000000 && ulimit -c unlimited
