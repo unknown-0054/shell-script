@@ -94,7 +94,6 @@ net.ipv4.tcp_sack=1
 net.ipv4.tcp_syn_retries=3
 net.ipv4.tcp_synack_retries=3
 net.ipv4.tcp_timestamps=1
-net.ipv4.tcp_tw_recycle=1
 net.ipv4.tcp_tw_reuse=1
 net.ipv4.tcp_window_scaling=1
 net.ipv4.tcp_wmem=4096 16384 536870912
