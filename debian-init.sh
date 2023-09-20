@@ -50,7 +50,8 @@ fi
 source ~/.bashrc
 
 # tcp
-cat <<EOF >/etc/sysctl.d/99-sysctl.conf
+rm -rf /etc/sysctl.d/*
+cat <<EOF >/etc/sysctl.conf
 fs.file-max=1000000
 fs.inotify.max_user_instances=65536
 net.core.default_qdisc=fq
