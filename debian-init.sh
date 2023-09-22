@@ -14,17 +14,18 @@ if [ -f /etc/os-release ]; then
     . /etc/os-release
     # 检查 $ID 变量是否为 "debian"
     if [ "$ID" != "debian" ]; then
-        echo "此脚本只能在Debian系统中运行"
+        echo -e "${red} 此脚本只能在Debian系统中运行"
         exit 1
     fi
 else
-    echo "无法确定操作系统类型"
+    echo -e "${red}无法确定操作系统类型"
     exit 1
 fi
 }
 
 InstallPackages(){
 apt install -y sudo bash-completion vim curl wget ntp net-tools zram-tools fail2ban dnsutils vnstat iperf3 qemu-guest-agent &> /dev/null
+echo  -e  "${green}常用软件包安装完成"
 }
 
 ClearLoginInfo(){
@@ -56,15 +57,15 @@ EOF
 
 if command -v docker &> /dev/null; then
     docker_version=$(docker --version | awk '{print $3}')
-    echo "Docker已安装,版本号：$docker_version"
+    echo -e "${green}Docker已安装,版本号：$docker_version"
 else
-    echo "开始安装 Docker"
+    echo -e "${green} 开始安装 Docker"
     if [[ $(curl -m 10 -s https://ipapi.co/json | grep 'China') != "" ]]; then
       export DOWNLOAD_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce"
     fi
     sh <(curl -k 'https://get.docker.com') &> /dev/null
     rm -rf /opt/containerd
-    echo "Docker 安装完成"
+    echo -e "${green} Docker 安装完成"
 fi
 
 sed -i '/alias dc/d' ~/.bashrc
@@ -212,7 +213,7 @@ cat <<EOF >/etc/systemd/journald.conf
 [Journal]
 SystemMaxUse=512M
 EOF
-echo "系统优化完成"
+echo -e "${green}系统优化完成"
 }
 
 
@@ -225,7 +226,7 @@ DhclientHook
 VimConfig
 InstallDocker
 SysOptimize
-echo "init 完成"
+echo -e "${green}init 完成"
 }
 
 main
