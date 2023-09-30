@@ -206,7 +206,7 @@ echo -e "${green}系统优化完成"
 
 main(){
 CheckRoot
-CheckSystem
+# CheckSystem
 InstallPackages
 ClearLoginInfo
 DhclientHook
