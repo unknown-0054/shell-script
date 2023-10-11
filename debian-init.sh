@@ -137,7 +137,7 @@ net.ipv4.udp_rmem_min = 8192
 net.ipv4.udp_wmem_min = 8192
 net.ipv4.ping_group_range = 0 2147483647
 net.ipv4.ip_local_port_range = 50000 65535
-net.netfilter.nf_conntrack_max = 500000
+net.netfilter.nf_conntrack_max = 5000000
 net.netfilter.nf_conntrack_tcp_timeout_fin_wait = 30
 net.netfilter.nf_conntrack_tcp_timeout_time_wait = 30
 net.netfilter.nf_conntrack_tcp_timeout_close_wait = 15
@@ -149,34 +149,52 @@ vm.dirty_ratio = 40
 vm.swappiness = 20
 EOF
 
-totalMem=$(awk '/MemTotal/ {printf "%.2f", $2/1024/1024}' /proc/meminfo)
-if (( $(bc <<< "$totalMem < 4") )); then
-    nf_conntrack_max=$(bc <<< "$totalMem * 256")
-    nf_conntrack_buckets=$(bc <<< "$totalMem * 8")
+Mem=`grep MemTotal /proc/meminfo | awk -F ':' '{print $2}' | awk '{print $1}'`
+totalMem=`echo "scale=2; $Mem/1024/1024" | bc`
+
+#<4GB 1G_3G_8G
+if [[ ${totalMem//.*/} -lt 4 ]]; then    
     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=262144 786432 2097152#g" /etc/sysctl.conf
-elif (( $(bc <<< "$totalMem < 7") )); then
-    nf_conntrack_max=$(bc <<< "$totalMem * 512")
-    nf_conntrack_buckets=$(bc <<< "$totalMem * 16")
+#6GB 2G_4G_8G
+elif [[ ${totalMem//.*/} -ge 4 && ${totalMem//.*/} -lt 7 ]]; then
     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=524288 1048576 2097152#g" /etc/sysctl.conf
-elif (( $(bc <<< "$totalMem < 11") )); then
-    nf_conntrack_max=$(bc <<< "$totalMem * 1024")
-    nf_conntrack_buckets=$(bc <<< "$totalMem * 32")
+#8GB 3G_4G_12G
+elif [[ ${totalMem//.*/} -ge 7 && ${totalMem//.*/} -lt 11 ]]; then    
     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=786432 1048576 3145728#g" /etc/sysctl.conf
-elif (( $(bc <<< "$totalMem < 15") )); then
-    nf_conntrack_max=$(bc <<< "$totalMem * 1024")
-    nf_conntrack_buckets=$(bc <<< "$totalMem * 32")
+#12GB 4G_6G_12G
+elif [[ ${totalMem//.*/} -ge 11 && ${totalMem//.*/} -lt 15 ]]; then    
     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 1572864 3145728#g" /etc/sysctl.conf
-else
-    nf_conntrack_max=$(bc <<< "$totalMem * 1024")
-    nf_conntrack_buckets=$(bc <<< "$totalMem * 32")
-    sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 1572864 3145728#g" /etc/sysctl.conf
+#>16GB 4G_8G_12G
+elif [[ ${totalMem//.*/} -ge 15 ]]; then
+    sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 2097152 3145728#g" /etc/sysctl.conf
 fi
-
-sed -i "s#.*net.netfilter.nf_conntrack_max=.*#net.netfilter.nf_conntrack_max=$nf_conntrack_max#g" /etc/sysctl.conf
-sed -i "s#.*net.netfilter.nf_conntrack_buckets=.*#net.netfilter.nf_conntrack_buckets=$nf_conntrack_buckets#g" /etc/sysctl.conf
-
 sysctl -p &> /dev/null
-   
+# totalMem=$(awk '/MemTotal/ {printf "%.2f", $2/1024/1024}' /proc/meminfo)
+# if (( $(bc <<< "$totalMem < 4") )); then
+#     nf_conntrack_max=$(bc <<< "$totalMem * 256")
+#     nf_conntrack_buckets=$(bc <<< "$totalMem * 8")
+#     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=262144 786432 2097152#g" /etc/sysctl.conf
+# elif (( $(bc <<< "$totalMem < 7") )); then
+#     nf_conntrack_max=$(bc <<< "$totalMem * 512")
+#     nf_conntrack_buckets=$(bc <<< "$totalMem * 16")
+#     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=524288 1048576 2097152#g" /etc/sysctl.conf
+# elif (( $(bc <<< "$totalMem < 11") )); then
+#     nf_conntrack_max=$(bc <<< "$totalMem * 1024")
+#     nf_conntrack_buckets=$(bc <<< "$totalMem * 32")
+#     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=786432 1048576 3145728#g" /etc/sysctl.conf
+# elif (( $(bc <<< "$totalMem < 15") )); then
+#     nf_conntrack_max=$(bc <<< "$totalMem * 1024")
+#     nf_conntrack_buckets=$(bc <<< "$totalMem * 32")
+#     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 1572864 3145728#g" /etc/sysctl.conf
+# else
+#     nf_conntrack_max=$(bc <<< "$totalMem * 1024")
+#     nf_conntrack_buckets=$(bc <<< "$totalMem * 32")
+#     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 1572864 3145728#g" /etc/sysctl.conf
+# fi
+
+# sed -i "s#.*net.netfilter.nf_conntrack_max=.*#net.netfilter.nf_conntrack_max=$nf_conntrack_max#g" /etc/sysctl.conf
+# sed -i "s#.*net.netfilter.nf_conntrack_buckets=.*#net.netfilter.nf_conntrack_buckets=$nf_conntrack_buckets#g" /etc/sysctl.conf
+  
 echo "1000000" > /proc/sys/fs/file-max
 sed -i '/ulimit -SHn/d' /etc/profile
 echo "ulimit -SHn 1000000" >>/etc/profile
