@@ -237,7 +237,7 @@ InstallPackages
 ClearLoginInfo
 DhclientHook
 VimConfig
-InstallDocker
+# InstallDocker
 SysOptimize
 echo -e "${green}init 完成"
 echo -e "\033[0m"
