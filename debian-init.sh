@@ -14,11 +14,6 @@ if ! command -v apt &> /dev/null; then
     echo -e "${red}错误：apt 命令不存在，请确认系统是否支持 apt 包管理器。"
     exit 1
 fi
-kernel_version=$(uname -r)
-if [[ "$(echo "$kernel_version >= 4.19" | bc -l)" -ne 1 ]]; then
-    echo -e "${red}错误：内核版本必须大于4.19，请更新内核版本。"
-    exit 1
-fi
 }
 
 InstallPackages(){
