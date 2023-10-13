@@ -10,15 +10,12 @@ CheckRoot(){
 }
 
 CheckSystem(){
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    # 检查 $ID 变量是否为 "debian"
-    if [ "$ID" != "debian" ]; then
-        echo -e "${red} 此脚本只能在Debian系统中运行"
-        exit 1
-    fi
-else
-    echo -e "${red}无法确定操作系统类型"
+if ! command -v apt &> /dev/null; then
+    echo -e "${red}错误：apt 命令不存在，请确认系统是否支持 apt 包管理器。"
+    exit 1
+fi
+if [[ "$(echo "$kernel_version >= 4.19" | bc -l)" -ne 1 ]]; then
+    echo -e "${red}错误：内核版本必须大于4.19，请更新内核版本。"
     exit 1
 fi
 }
@@ -105,7 +102,6 @@ net.ipv4.conf.all.route_localnet = 1
 net.ipv4.conf.all.secure_redirects = 0
 net.ipv4.conf.all.send_redirects = 0
 net.ipv4.ip_forward = 1
-
 net.ipv4.tcp_autocorking = 0
 net.ipv4.tcp_congestion_control = bbr
 net.ipv4.tcp_ecn = 0
@@ -139,11 +135,11 @@ net.ipv4.ping_group_range = 0 2147483647
 net.ipv4.ip_local_port_range = 50000 65535
 net.ipv6.conf.all.accept_ra=2
 net.ipv6.conf.all.autoconf=1
-# net.netfilter.nf_conntrack_max = 5000000
-# net.netfilter.nf_conntrack_tcp_timeout_fin_wait = 30
-# net.netfilter.nf_conntrack_tcp_timeout_time_wait = 30
-# net.netfilter.nf_conntrack_tcp_timeout_close_wait = 15
-# net.netfilter.nf_conntrack_tcp_timeout_established = 300
+net.netfilter.nf_conntrack_max = 65535
+net.netfilter.nf_conntrack_tcp_timeout_fin_wait = 30
+net.netfilter.nf_conntrack_tcp_timeout_time_wait = 30
+net.netfilter.nf_conntrack_tcp_timeout_close_wait = 15
+net.netfilter.nf_conntrack_tcp_timeout_established = 300
 vm.dirty_background_bytes = 52428800
 vm.dirty_background_ratio = 0
 vm.dirty_bytes = 52428800
@@ -151,48 +147,29 @@ vm.dirty_ratio = 40
 vm.swappiness = 20
 EOF
 
-Mem=`grep MemTotal /proc/meminfo | awk -F ':' '{print $2}' | awk '{print $1}'`
-totalMem=`echo "scale=2; $Mem/1024/1024" | bc`
-
+total_memory=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+total_memory_bytes=$((total_memory * 1024))
+total_memory_gb=$(awk "BEGIN {printf \"%.2f\", $total_memory / 1024 / 1024}")
+nf_conntrack_max=$((total_memory_bytes / 16384))
+sed -i "s#.*net.netfilter.nf_conntrack_max = .*#net.netfilter.nf_conntrack_max = ${nf_conntrack_max}#g" /etc/sysctl.conf
 #<4GB 1G_3G_8G
-if [[ ${totalMem//.*/} -lt 4 ]]; then    
-    sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=262144 786432 2097152#g" /etc/sysctl.conf
+if [[ ${total_memory_gb//.*/} -lt 4 ]]; then    
+    sed -i "s#.*net.ipv4.tcp_mem =.*#net.ipv4.tcp_mem =262144 786432 2097152#g" /etc/sysctl.conf
 #6GB 2G_4G_8G
-elif [[ ${totalMem//.*/} -ge 4 && ${totalMem//.*/} -lt 7 ]]; then
-    sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=524288 1048576 2097152#g" /etc/sysctl.conf
+elif [[ ${total_memory_gb//.*/} -ge 4 && ${total_memory_gb//.*/} -lt 7 ]]; then
+    sed -i "s#.*net.ipv4.tcp_mem =.*#net.ipv4.tcp_mem =524288 1048576 2097152#g" /etc/sysctl.conf
 #8GB 3G_4G_12G
-elif [[ ${totalMem//.*/} -ge 7 && ${totalMem//.*/} -lt 11 ]]; then    
-    sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=786432 1048576 3145728#g" /etc/sysctl.conf
+elif [[ ${total_memory_gb//.*/} -ge 7 && ${total_memory_gb//.*/} -lt 11 ]]; then    
+    sed -i "s#.*net.ipv4.tcp_mem =.*#net.ipv4.tcp_mem =786432 1048576 3145728#g" /etc/sysctl.conf
 #12GB 4G_6G_12G
-elif [[ ${totalMem//.*/} -ge 11 && ${totalMem//.*/} -lt 15 ]]; then    
-    sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 1572864 3145728#g" /etc/sysctl.conf
+elif [[ ${total_memory_gb//.*/} -ge 11 && ${total_memory_gb//.*/} -lt 15 ]]; then    
+    sed -i "s#.*net.ipv4.tcp_mem =.*#net.ipv4.tcp_mem =1048576 1572864 3145728#g" /etc/sysctl.conf
 #>16GB 4G_8G_12G
-elif [[ ${totalMem//.*/} -ge 15 ]]; then
-    sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 2097152 3145728#g" /etc/sysctl.conf
+elif [[ ${total_memory_gb//.*/} -ge 15 ]]; then
+    sed -i "s#.*net.ipv4.tcp_mem =.*#net.ipv4.tcp_mem =1048576 2097152 3145728#g" /etc/sysctl.conf
 fi
 sysctl -p &> /dev/null
-# totalMem=$(awk '/MemTotal/ {printf "%.2f", $2/1024/1024}' /proc/meminfo)
-# if (( $(bc <<< "$totalMem < 4") )); then
-#     nf_conntrack_max=$(bc <<< "$totalMem * 256")
-#     nf_conntrack_buckets=$(bc <<< "$totalMem * 8")
-#     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=262144 786432 2097152#g" /etc/sysctl.conf
-# elif (( $(bc <<< "$totalMem < 7") )); then
-#     nf_conntrack_max=$(bc <<< "$totalMem * 512")
-#     nf_conntrack_buckets=$(bc <<< "$totalMem * 16")
-#     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=524288 1048576 2097152#g" /etc/sysctl.conf
-# elif (( $(bc <<< "$totalMem < 11") )); then
-#     nf_conntrack_max=$(bc <<< "$totalMem * 1024")
-#     nf_conntrack_buckets=$(bc <<< "$totalMem * 32")
-#     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=786432 1048576 3145728#g" /etc/sysctl.conf
-# elif (( $(bc <<< "$totalMem < 15") )); then
-#     nf_conntrack_max=$(bc <<< "$totalMem * 1024")
-#     nf_conntrack_buckets=$(bc <<< "$totalMem * 32")
-#     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 1572864 3145728#g" /etc/sysctl.conf
-# else
-#     nf_conntrack_max=$(bc <<< "$totalMem * 1024")
-#     nf_conntrack_buckets=$(bc <<< "$totalMem * 32")
-#     sed -i "s#.*net.ipv4.tcp_mem=.*#net.ipv4.tcp_mem=1048576 1572864 3145728#g" /etc/sysctl.conf
-# fi
+
 
 # sed -i "s#.*net.netfilter.nf_conntrack_max=.*#net.netfilter.nf_conntrack_max=$nf_conntrack_max#g" /etc/sysctl.conf
 # sed -i "s#.*net.netfilter.nf_conntrack_buckets=.*#net.netfilter.nf_conntrack_buckets=$nf_conntrack_buckets#g" /etc/sysctl.conf
@@ -234,12 +211,12 @@ echo -e "${green}系统优化完成"
 
 main(){
 CheckRoot
-# CheckSystem
+CheckSystem
 InstallPackages
 ClearLoginInfo
 DhclientHook
 VimConfig
-# InstallDocker
+InstallDocker
 SysOptimize
 echo -e "${green}init 完成"
 echo -e "\033[0m"
