@@ -143,7 +143,7 @@ EOF
 total_memory=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 total_memory_bytes=$((total_memory * 1024))
 total_memory_gb=$(awk "BEGIN {printf \"%.2f\", $total_memory / 1024 / 1024}")
-nf_conntrack_max=$((total_memory_bytes / 16384 / 2))
+nf_conntrack_max=$((total_memory_bytes / 16384 ))
 sed -i "s#.*net.netfilter.nf_conntrack_max = .*#net.netfilter.nf_conntrack_max = ${nf_conntrack_max}#g" /etc/sysctl.conf
 #<4GB 1G_3G_8G
 if [[ ${total_memory_gb//.*/} -lt 4 ]]; then    
