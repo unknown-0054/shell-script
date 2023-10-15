@@ -18,6 +18,8 @@ fi
 
 InstallPackages(){
 apt install -y sudo bash-completion vim curl wget ntp net-tools zram-tools fail2ban dnsutils vnstat iperf3 qemu-guest-agent &> /dev/null
+echo -e "ALGO=zstd\nPERCENT=100" | sudo tee -a /etc/default/zramswap
+service zramswap reload
 echo  -e  "${green}常用软件包安装完成"
 }
 
