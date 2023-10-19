@@ -17,7 +17,7 @@ fi
 }
 
 InstallPackages(){
-apt install -y sudo bash-completion vim curl wget ntp net-tools zram-tools fail2ban dnsutils vnstat iperf3 qemu-guest-agent &> /dev/null
+apt install -y sudo bash-completion vim curl wget ntp net-tools zram-tools fail2ban dnsutils vnstat qemu-guest-agent &> /dev/null
 echo -e "ALGO=zstd\nPERCENT=100" | sudo tee -a /etc/default/zramswap
 service zramswap reload
 echo  -e  "${green}常用软件包安装完成"
@@ -131,6 +131,7 @@ net.ipv4.ip_local_port_range = 50000 65535
 net.ipv6.conf.all.accept_ra=2
 net.ipv6.conf.all.autoconf=1
 net.netfilter.nf_conntrack_max = 65535
+net.netfilter.nf_conntrack_buckets = 16384
 net.netfilter.nf_conntrack_tcp_timeout_fin_wait = 30
 net.netfilter.nf_conntrack_tcp_timeout_time_wait = 30
 net.netfilter.nf_conntrack_tcp_timeout_close_wait = 15
@@ -146,7 +147,9 @@ total_memory=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 total_memory_bytes=$((total_memory * 1024))
 total_memory_gb=$(awk "BEGIN {printf \"%.2f\", $total_memory / 1024 / 1024}")
 nf_conntrack_max=$((total_memory_bytes / 16384 ))
+nf_conntrack_buckets=$((nf_conntrack_max / 4))
 sed -i "s#.*net.netfilter.nf_conntrack_max = .*#net.netfilter.nf_conntrack_max = ${nf_conntrack_max}#g" /etc/sysctl.conf
+sed -i "s#.*net.netfilter.nf_conntrack_buckets = .*#net.netfilter.nf_conntrack_buckets = ${nf_conntrack_buckets}#g" /etc/sysctl.conf
 #<4GB 1G_3G_8G
 if [[ ${total_memory_gb//.*/} -lt 4 ]]; then    
     sed -i "s#.*net.ipv4.tcp_mem =.*#net.ipv4.tcp_mem =262144 786432 2097152#g" /etc/sysctl.conf
